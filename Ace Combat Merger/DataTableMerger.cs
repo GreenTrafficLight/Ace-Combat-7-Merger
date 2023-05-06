@@ -8,7 +8,7 @@ using UAssetAPI.PropertyTypes.Structs;
 using UAssetAPI;
 using UAssetAPI.UnrealTypes;
 using UAssetAPI.PropertyTypes.Objects;
-using CUE4Parse.FileProvider;
+using CUE4Parse.FileProvider.Objects;
 using CUE4Parse.UE4.Objects.Engine;
 using Microsoft.VisualBasic;
 using System.Reflection.Metadata;

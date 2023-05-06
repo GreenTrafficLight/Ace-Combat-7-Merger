@@ -1,4 +1,4 @@
-﻿using CUE4Parse.FileProvider;
+﻿using CUE4Parse.FileProvider.Objects;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
