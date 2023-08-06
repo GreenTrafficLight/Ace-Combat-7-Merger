@@ -44,10 +44,10 @@ namespace Ace_Combat_Merger
             // 
             // gamePaksFolderPathButton
             // 
-            gamePaksFolderPathButton.Location = new Point(639, 23);
-            gamePaksFolderPathButton.Margin = new Padding(4, 3, 4, 3);
+            gamePaksFolderPathButton.Location = new Point(730, 33);
+            gamePaksFolderPathButton.Margin = new Padding(5, 4, 5, 4);
             gamePaksFolderPathButton.Name = "gamePaksFolderPathButton";
-            gamePaksFolderPathButton.Size = new Size(28, 28);
+            gamePaksFolderPathButton.Size = new Size(32, 32);
             gamePaksFolderPathButton.TabIndex = 0;
             gamePaksFolderPathButton.Text = "...";
             gamePaksFolderPathButton.UseVisualStyleBackColor = true;
@@ -56,20 +56,20 @@ namespace Ace_Combat_Merger
             // gamePaksFolderPathLabel
             // 
             gamePaksFolderPathLabel.AutoSize = true;
-            gamePaksFolderPathLabel.Location = new Point(10, 9);
-            gamePaksFolderPathLabel.Margin = new Padding(4, 0, 4, 0);
+            gamePaksFolderPathLabel.Location = new Point(11, 12);
+            gamePaksFolderPathLabel.Margin = new Padding(5, 0, 5, 0);
             gamePaksFolderPathLabel.Name = "gamePaksFolderPathLabel";
-            gamePaksFolderPathLabel.Size = new Size(108, 15);
+            gamePaksFolderPathLabel.Size = new Size(135, 20);
             gamePaksFolderPathLabel.TabIndex = 1;
             gamePaksFolderPathLabel.Text = "Path to game files :";
             // 
             // gamePaksFolderPathTextBox
             // 
             gamePaksFolderPathTextBox.ForeColor = SystemColors.InactiveCaptionText;
-            gamePaksFolderPathTextBox.Location = new Point(10, 27);
-            gamePaksFolderPathTextBox.Margin = new Padding(4, 3, 4, 3);
+            gamePaksFolderPathTextBox.Location = new Point(11, 36);
+            gamePaksFolderPathTextBox.Margin = new Padding(5, 4, 5, 4);
             gamePaksFolderPathTextBox.Name = "gamePaksFolderPathTextBox";
-            gamePaksFolderPathTextBox.Size = new Size(621, 23);
+            gamePaksFolderPathTextBox.Size = new Size(714, 27);
             gamePaksFolderPathTextBox.TabIndex = 2;
             gamePaksFolderPathTextBox.Text = "Game paks folder ( i.e : <Game Folder>/Game/Content/Paks ) ";
             gamePaksFolderPathTextBox.TextChanged += gamePaksFolderPathTextBox_TextChanged;
@@ -78,10 +78,10 @@ namespace Ace_Combat_Merger
             // 
             // cancelButton
             // 
-            cancelButton.Location = new Point(580, 164);
-            cancelButton.Margin = new Padding(4, 3, 4, 3);
+            cancelButton.Location = new Point(663, 219);
+            cancelButton.Margin = new Padding(5, 4, 5, 4);
             cancelButton.Name = "cancelButton";
-            cancelButton.Size = new Size(88, 27);
+            cancelButton.Size = new Size(101, 36);
             cancelButton.TabIndex = 3;
             cancelButton.Text = "Cancel";
             cancelButton.UseVisualStyleBackColor = true;
@@ -89,10 +89,10 @@ namespace Ace_Combat_Merger
             // 
             // okButton
             // 
-            okButton.Location = new Point(485, 164);
-            okButton.Margin = new Padding(4, 3, 4, 3);
+            okButton.Location = new Point(554, 219);
+            okButton.Margin = new Padding(5, 4, 5, 4);
             okButton.Name = "okButton";
-            okButton.Size = new Size(88, 27);
+            okButton.Size = new Size(101, 36);
             okButton.TabIndex = 4;
             okButton.Text = "OK";
             okButton.UseVisualStyleBackColor = true;
@@ -100,29 +100,29 @@ namespace Ace_Combat_Merger
             // 
             // modsFolderPathTextBox
             // 
-            modsFolderPathTextBox.Location = new Point(10, 71);
-            modsFolderPathTextBox.Margin = new Padding(4, 3, 4, 3);
+            modsFolderPathTextBox.Location = new Point(11, 95);
+            modsFolderPathTextBox.Margin = new Padding(5, 4, 5, 4);
             modsFolderPathTextBox.Name = "modsFolderPathTextBox";
-            modsFolderPathTextBox.Size = new Size(625, 23);
+            modsFolderPathTextBox.Size = new Size(714, 27);
             modsFolderPathTextBox.TabIndex = 5;
             modsFolderPathTextBox.TextChanged += modsFolderPathTextBox_TextChanged;
             // 
             // modsFolderPathLabel
             // 
             modsFolderPathLabel.AutoSize = true;
-            modsFolderPathLabel.Location = new Point(10, 53);
-            modsFolderPathLabel.Margin = new Padding(4, 0, 4, 0);
+            modsFolderPathLabel.Location = new Point(11, 71);
+            modsFolderPathLabel.Margin = new Padding(5, 0, 5, 0);
             modsFolderPathLabel.Name = "modsFolderPathLabel";
-            modsFolderPathLabel.Size = new Size(118, 15);
+            modsFolderPathLabel.Size = new Size(147, 20);
             modsFolderPathLabel.TabIndex = 6;
             modsFolderPathLabel.Text = "Path to mods folder :";
             // 
             // modsFolderPathButton
             // 
-            modsFolderPathButton.Location = new Point(639, 68);
-            modsFolderPathButton.Margin = new Padding(4, 3, 4, 3);
+            modsFolderPathButton.Location = new Point(730, 92);
+            modsFolderPathButton.Margin = new Padding(5, 4, 5, 4);
             modsFolderPathButton.Name = "modsFolderPathButton";
-            modsFolderPathButton.Size = new Size(28, 27);
+            modsFolderPathButton.Size = new Size(32, 32);
             modsFolderPathButton.TabIndex = 7;
             modsFolderPathButton.Text = "...";
             modsFolderPathButton.UseVisualStyleBackColor = true;
@@ -130,29 +130,29 @@ namespace Ace_Combat_Merger
             // 
             // exportPathTextBox
             // 
-            exportPathTextBox.Location = new Point(10, 115);
-            exportPathTextBox.Margin = new Padding(4, 3, 4, 3);
+            exportPathTextBox.Location = new Point(11, 153);
+            exportPathTextBox.Margin = new Padding(5, 4, 5, 4);
             exportPathTextBox.Name = "exportPathTextBox";
-            exportPathTextBox.Size = new Size(625, 23);
+            exportPathTextBox.Size = new Size(714, 27);
             exportPathTextBox.TabIndex = 8;
             exportPathTextBox.TextChanged += exportPathTextBox_TextChanged;
             // 
             // exportPathLabel
             // 
             exportPathLabel.AutoSize = true;
-            exportPathLabel.Location = new Point(10, 97);
-            exportPathLabel.Margin = new Padding(4, 0, 4, 0);
+            exportPathLabel.Location = new Point(11, 129);
+            exportPathLabel.Margin = new Padding(5, 0, 5, 0);
             exportPathLabel.Name = "exportPathLabel";
-            exportPathLabel.Size = new Size(73, 15);
+            exportPathLabel.Size = new Size(91, 20);
             exportPathLabel.TabIndex = 9;
             exportPathLabel.Text = "Export Path :";
             // 
             // exportPathLabelButton
             // 
-            exportPathLabelButton.Location = new Point(639, 115);
-            exportPathLabelButton.Margin = new Padding(4, 3, 4, 3);
+            exportPathLabelButton.Location = new Point(730, 150);
+            exportPathLabelButton.Margin = new Padding(5, 4, 5, 4);
             exportPathLabelButton.Name = "exportPathLabelButton";
-            exportPathLabelButton.Size = new Size(28, 23);
+            exportPathLabelButton.Size = new Size(32, 32);
             exportPathLabelButton.TabIndex = 10;
             exportPathLabelButton.Text = "...";
             exportPathLabelButton.UseVisualStyleBackColor = true;
@@ -160,9 +160,9 @@ namespace Ace_Combat_Merger
             // 
             // GamePathForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(681, 204);
+            ClientSize = new Size(778, 272);
             Controls.Add(exportPathLabelButton);
             Controls.Add(exportPathLabel);
             Controls.Add(exportPathTextBox);
@@ -174,7 +174,7 @@ namespace Ace_Combat_Merger
             Controls.Add(gamePaksFolderPathTextBox);
             Controls.Add(gamePaksFolderPathLabel);
             Controls.Add(gamePaksFolderPathButton);
-            Margin = new Padding(4, 3, 4, 3);
+            Margin = new Padding(5, 4, 5, 4);
             Name = "GamePathForm";
             Text = "GamePathForm";
             ResumeLayout(false);
@@ -183,16 +183,16 @@ namespace Ace_Combat_Merger
 
         #endregion
 
-        private System.Windows.Forms.Button gamePaksFolderPathButton;
-        private System.Windows.Forms.Label gamePaksFolderPathLabel;
-        private System.Windows.Forms.TextBox gamePaksFolderPathTextBox;
-        private System.Windows.Forms.Button cancelButton;
-        private System.Windows.Forms.Button okButton;
-        private System.Windows.Forms.TextBox modsFolderPathTextBox;
-        private System.Windows.Forms.Label modsFolderPathLabel;
-        private System.Windows.Forms.Button modsFolderPathButton;
-        private System.Windows.Forms.TextBox exportPathTextBox;
-        private System.Windows.Forms.Label exportPathLabel;
-        private System.Windows.Forms.Button exportPathLabelButton;
+        private Button gamePaksFolderPathButton;
+        private Label gamePaksFolderPathLabel;
+        private TextBox gamePaksFolderPathTextBox;
+        private Button cancelButton;
+        private Button okButton;
+        private TextBox modsFolderPathTextBox;
+        private Label modsFolderPathLabel;
+        private Button modsFolderPathButton;
+        private TextBox exportPathTextBox;
+        private Label exportPathLabel;
+        private Button exportPathLabelButton;
     }
 }

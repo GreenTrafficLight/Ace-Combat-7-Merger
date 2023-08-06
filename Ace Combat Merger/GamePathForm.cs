@@ -47,9 +47,9 @@ namespace Ace_Combat_Merger
         {
             InitializeComponent();
 
-            #if DEBUG
-                GameFilePath = "E:\\Program Files(x86)\\Steam\\steamapps\\common\\ACE COMBAT 7\\Game\\Content\\Paks";
-            #endif
+#if DEBUG
+            GameFilePath = "E:\\Program Files(x86)\\Steam\\steamapps\\common\\ACE COMBAT 7\\Game\\Content\\Paks";
+#endif
         }
 
         #region button
