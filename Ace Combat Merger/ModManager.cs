@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 using UAssetAPI;
 using UAssetAPI.UnrealTypes;
 using Ace_Combat_Merger.Localization.Formats;
+using UAssetAPI.ExportTypes;
+using UAssetAPI.PropertyTypes.Structs;
+using UAssetAPI.PropertyTypes.Objects;
 
 namespace Ace_Combat_Merger
 {
@@ -90,11 +93,7 @@ namespace Ace_Combat_Merger
                 string originalDirectory = ExportFolderPath + "\\original\\" + assetFileNameDirectory + "\\";
                 string exportDirectory = ExportFolderPath + "\\export\\" + assetFileNameDirectory + "\\";
 
-                Directory.CreateDirectory(originalDirectory);
-                Directory.CreateDirectory(exportDirectory);
-
-
-                if (assetFileNameDirectory.Equals("Nimbus\\Content\\Blueprint\\Player\\Pawn")) // Replace for skins
+                /*if (assetFileNameDirectory.Equals("Nimbus\\Content\\Blueprint\\Player\\Pawn")) // Replace for skins
                 {
                     Directory.CreateDirectory(ExportFolderPath + "\\original\\Nimbus\\Content\\Blueprint\\Information");
                     // Get the original .uasset from the game paks
@@ -112,24 +111,31 @@ namespace Ace_Combat_Merger
                     File.WriteAllBytes(exportDirectory + assetFileName, pakModsGameFiles.Value.Read());
                 }
                 else
+                {*/
+                byte[] gameFile = null;
+
+                // Get the original .uasset from the game paks
+                foreach (var pakGameFiles in PaksGameFiles)
                 {
-                    byte[] gameFile = null;
-
-                    // Get the original .uasset from the game paks
-                    foreach (var pakGameFiles in PaksGameFiles)
+                    if (pakGameFiles.ContainsKey(pakModsGameFiles.Key))
                     {
-                        if (pakGameFiles.ContainsKey(pakModsGameFiles.Key))
-                        {
-                            gameFile = pakGameFiles[pakModsGameFiles.Key].Read();
-                        }
-                    }
-
-                    if (gameFile != null && !File.Exists(originalDirectory + assetFileName))
-                    {
-                        File.WriteAllBytes(originalDirectory + assetFileName, gameFile);
-                        File.WriteAllBytes(exportDirectory + assetFileName, gameFile);
+                        gameFile = pakGameFiles[pakModsGameFiles.Key].Read();
                     }
                 }
+
+                if (gameFile != null && !File.Exists(originalDirectory + assetFileName))
+                {
+                    Directory.CreateDirectory(originalDirectory);
+                    Directory.CreateDirectory(exportDirectory);
+                    File.WriteAllBytes(originalDirectory + assetFileName, gameFile);
+                    File.WriteAllBytes(exportDirectory + assetFileName, gameFile);
+                }
+                /*else if (gameFile == null)
+                {
+                    Directory.CreateDirectory(exportDirectory);
+                    File.WriteAllBytes(exportDirectory + assetFileName, pakModsGameFiles.Value.Read());
+                }*/
+                //}
             }
         }
         private void WriteModifications(IReadOnlyDictionary<string, GameFile> pakModsFiles)
@@ -148,7 +154,7 @@ namespace Ace_Combat_Merger
                 switch (Path.GetExtension(assetFileName))
                 {
                     case ".uasset":
-                        if (assetFileNameDirectory.Equals("Nimbus\\Content\\Blueprint\\Player\\Pawn")) // Replace for skins
+                        /*if (assetFileNameDirectory.Equals("Nimbus\\Content\\Blueprint\\Player\\Pawn")) // Replace for skins
                         {
                             _AC7Decrypt.Decrypt(ExportFolderPath + "\\original\\Nimbus\\Content\\Blueprint\\Information\\PlayerPlaneDataTable.uasset", ExportFolderPath + "\\original\\Nimbus\\Content\\Blueprint\\Information\\PlayerPlaneDataTable.uasset");
                             UAsset gameUasset = new UAsset(ExportFolderPath + "\\original\\Nimbus\\Content\\Blueprint\\Information\\PlayerPlaneDataTable.uasset", EngineVersion.VER_UE4_18, null);
@@ -157,11 +163,13 @@ namespace Ace_Combat_Merger
                             var files = Directory.GetFiles(exportDirectory, "*.uasset").Where(path => reg.IsMatch(path));
                         }
                         else
-                        {
-                            // DataTable merger
-                            string gameUassetPath = originalDirectory + Path.GetFileNameWithoutExtension(assetFileName) + ".uasset";
-                            string exportUassetPath = exportDirectory + Path.GetFileNameWithoutExtension(assetFileName) + ".uasset";
+                        {*/
+                        // DataTable merger
+                        string gameUassetPath = originalDirectory + Path.GetFileNameWithoutExtension(assetFileName) + ".uasset";
+                        string exportUassetPath = exportDirectory + Path.GetFileNameWithoutExtension(assetFileName) + ".uasset";
 
+                        if (File.Exists(gameUassetPath))
+                        {
                             UAsset gameUasset = GetGameUasset(gameUassetPath);
                             UAsset exportUasset = GetGameUasset(exportUassetPath);
 
@@ -191,12 +199,16 @@ namespace Ace_Combat_Merger
 
                             exportUasset.Write(exportUassetPath);
                         }
+
+                        //}
                         break;
 
                     // Localization merger
                     case ".dat":
                         string gameDatPath = originalDirectory + Path.GetFileNameWithoutExtension(assetFileName) + ".dat";
                         string exportDatPath = exportDirectory + Path.GetFileNameWithoutExtension(assetFileName) + ".dat";
+
+                        List<StateDataTable.State> stateDAT;
 
                         switch (Path.GetFileNameWithoutExtension(assetFileName))
                         {
@@ -207,6 +219,18 @@ namespace Ace_Combat_Merger
                                 File.WriteAllBytes(exportDirectory + "temp.dat", pakModsFiles[pakModsFile.Key].Read());
                                 CMN modCMN = new CMN(exportDirectory + "temp.dat");
                                 File.Delete(exportDirectory + "temp.dat");
+
+                                if (StateDATs.ContainsKey(Path.GetFileNameWithoutExtension(assetFileName)))
+                                {
+                                    stateDAT = StateDATs[Path.GetFileNameWithoutExtension(assetFileName)];
+                                }
+                                else
+                                {
+                                    stateDAT = new List<StateDataTable.State>();
+                                    StateDATs[Path.GetFileNameWithoutExtension(assetFileName)] = stateDAT;
+                                }
+
+
                                 break;
 
                             default:
@@ -217,7 +241,6 @@ namespace Ace_Combat_Merger
                                 DAT modDAT = new DAT(exportDirectory + "temp.dat", assetFileName);
                                 File.Delete(exportDirectory + "temp.dat");
 
-                                List<StateDataTable.State> stateDAT;
                                 if (StateDATs.ContainsKey(Path.GetFileNameWithoutExtension(assetFileName)))
                                 {
                                     stateDAT = StateDATs[Path.GetFileNameWithoutExtension(assetFileName)];
