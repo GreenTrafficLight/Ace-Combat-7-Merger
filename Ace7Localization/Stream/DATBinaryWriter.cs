@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ace_Combat_Merger.Localization.Commons
+namespace Ace7Localization.Stream
 {
     public class DATBinaryWriter
     {

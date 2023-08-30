@@ -1,28 +1,30 @@
-﻿using CUE4Parse.Encryption.Aes;
-using CUE4Parse.FileProvider.Objects;
-using CUE4Parse.FileProvider;
-using CUE4Parse.UE4.Pak;
-using CUE4Parse.UE4.Versions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
+using CUE4Parse.Encryption.Aes;
+using CUE4Parse.FileProvider.Objects;
+using CUE4Parse.FileProvider;
+using CUE4Parse.UE4.Pak;
+using CUE4Parse.UE4.Versions;
 using UAssetAPI;
 using UAssetAPI.UnrealTypes;
-using Ace_Combat_Merger.Localization.Formats;
+using Ace7Localization.Formats;
 
 namespace Ace_Combat_Merger
 {
     public class ModManager
     {
-        public List<IReadOnlyDictionary<string, GameFile>> PaksGameFiles = new List<IReadOnlyDictionary<string, GameFile>>();
-        public List<IReadOnlyDictionary<string, GameFile>> PaksModsGameFiles = new List<IReadOnlyDictionary<string, GameFile>>();
+        public List<KeyValuePair<string, IReadOnlyDictionary<string, GameFile>>> PaksGameFiles = new List<KeyValuePair<string, IReadOnlyDictionary<string, GameFile>>>();
+        public List<KeyValuePair<string, IReadOnlyDictionary<string, GameFile>>> PaksModsGameFiles = new List<KeyValuePair<string, IReadOnlyDictionary<string, GameFile>>>();
         public DefaultFileProvider GameProvider;
         public DefaultFileProvider ModsProvider;
         private AC7Decrypt _AC7Decrypt = new AC7Decrypt();
         DataTableMerger dataTableMerger = new DataTableMerger();
+        LocalizationMerger localizationMerger = new LocalizationMerger();
 
         // Table states for each uasset
         public Dictionary<string, StateDataTable> StateDataTables = new Dictionary<string, StateDataTable>();
@@ -51,7 +53,7 @@ namespace Ace_Combat_Merger
 
             Directory.CreateDirectory(ExportFolderPath);
 
-            foreach (IReadOnlyDictionary<string, GameFile> modGameFiles in PaksModsGameFiles)
+            foreach (KeyValuePair<string, IReadOnlyDictionary<string, GameFile>> modGameFiles in PaksModsGameFiles)
             {
                 CreateDirectories(modGameFiles);
 
@@ -70,19 +72,19 @@ namespace Ace_Combat_Merger
             UAsset gameUasset = new UAsset(assetPath, EngineVersion.VER_UE4_18, null);
             return gameUasset;
         }
-        private void GetGameFiles(DefaultFileProvider provider, List<IReadOnlyDictionary<string, GameFile>> paksFiles)
+        private void GetGameFiles(DefaultFileProvider provider, List<KeyValuePair<string, IReadOnlyDictionary<string, GameFile>>> paksFiles)
         {
             foreach (PakFileReader pak in provider.MountedVfs.OrderBy(x => x.Name).ToList())
             {
                 IReadOnlyDictionary<string, GameFile> gameFiles = pak.Mount();
-                paksFiles.Add(gameFiles);
+                paksFiles.Add(new KeyValuePair<string, IReadOnlyDictionary<string, GameFile>>(Path.GetFileNameWithoutExtension(pak.Name), gameFiles));
             }
         }
 
 
-        private void CreateDirectories(IReadOnlyDictionary<string, GameFile> paksModsGameFiles)
+        private void CreateDirectories(KeyValuePair<string, IReadOnlyDictionary<string, GameFile>> paksModsGameFiles)
         {
-            foreach (var pakModsGameFiles in paksModsGameFiles)
+            foreach (var pakModsGameFiles in paksModsGameFiles.Value)
             {
                 string assetFileName = Path.GetFileName(pakModsGameFiles.Key);
                 string assetFileNameDirectory = Path.GetDirectoryName(pakModsGameFiles.Key);
@@ -107,12 +109,12 @@ namespace Ace_Combat_Merger
                 // Get the original .uasset from the game paks
                 foreach (var pakGameFiles in PaksGameFiles)
                 {
-                    if (pakGameFiles.ContainsKey(pakModsGameFiles.Key))
+                    if (pakGameFiles.Value.ContainsKey(pakModsGameFiles.Key))
                     {
-                        gameFile = pakGameFiles[pakModsGameFiles.Key].Read();
+                        gameFile = pakGameFiles.Value[pakModsGameFiles.Key].Read();
                     }
 
-                    if (gameFile != null && !File.Exists(originalDirectory + assetFileName))
+                    if (gameFile != null && (!File.Exists(originalDirectory + assetFileName) || pakGameFiles.Key.EndsWith("_P")))
                     {
                         File.WriteAllBytes(originalDirectory + assetFileName, gameFile);
                         File.WriteAllBytes(exportDirectory + assetFileName, gameFile);
@@ -120,9 +122,10 @@ namespace Ace_Combat_Merger
                 }
             }
         }
-        private void WriteModifications(IReadOnlyDictionary<string, GameFile> pakModsFiles)
+        
+        private void WriteModifications(KeyValuePair<string, IReadOnlyDictionary<string, GameFile>> pakModsFiles)
         {
-            foreach (var pakModsFile in pakModsFiles)
+            foreach (var pakModsFile in pakModsFiles.Value)
             {
                 string assetFileName = Path.GetFileName(pakModsFile.Key);
                 string assetFileNameDirectory = Path.GetDirectoryName(pakModsFile.Key);
@@ -148,8 +151,8 @@ namespace Ace_Combat_Merger
                                 UAsset exportUasset = GetGameUasset(exportUassetPath);
 
                                 // Get modded asset
-                                File.WriteAllBytes(exportDirectory + "temp.uasset", pakModsFiles[pakModsFile.Key].Read());
-                                File.WriteAllBytes(exportDirectory + "temp.uexp", pakModsFiles[Path.ChangeExtension(pakModsFile.Key, ".uexp")].Read());
+                                File.WriteAllBytes(exportDirectory + "temp.uasset", pakModsFiles.Value[pakModsFile.Key].Read());
+                                File.WriteAllBytes(exportDirectory + "temp.uexp", pakModsFiles.Value[Path.ChangeExtension(pakModsFile.Key, ".uexp")].Read());
                                 UAsset modUasset = new UAsset(exportDirectory + "temp.uasset", EngineVersion.VER_UE4_18, null);
                                 File.Delete(exportDirectory + "temp.uasset");
                                 File.Delete(exportDirectory + "temp.uexp");
@@ -169,7 +172,7 @@ namespace Ace_Combat_Merger
                                     DictionaryDataTables[Path.GetFileNameWithoutExtension(assetFileName)] = dictionaryDataTable;
                                 }
 
-                                dataTableMerger.MergeDataTables(gameUasset, exportUasset, modUasset, stateDataTable, dictionaryDataTable, pakModsFiles, this);
+                                dataTableMerger.MergeDataTables(gameUasset, exportUasset, modUasset, stateDataTable, dictionaryDataTable, pakModsFiles.Value, this);
 
                                 exportUasset.Write(exportUassetPath);
                                 break;
@@ -181,7 +184,7 @@ namespace Ace_Combat_Merger
 
                     // Localization merger
                     case ".dat":
-                        /*string gameDatPath = originalDirectory + Path.GetFileNameWithoutExtension(assetFileName) + ".dat";
+                        string gameDatPath = originalDirectory + Path.GetFileNameWithoutExtension(assetFileName) + ".dat";
                         string exportDatPath = exportDirectory + Path.GetFileNameWithoutExtension(assetFileName) + ".dat";
 
                         switch (Path.GetFileNameWithoutExtension(assetFileName))
@@ -190,12 +193,20 @@ namespace Ace_Combat_Merger
                                 CMN gameCMN = new CMN(gameDatPath);
                                 CMN exportCMN = new CMN(exportDatPath);
 
-                                File.WriteAllBytes(exportDirectory + "temp.dat", pakModsFiles[pakModsFile.Key].Read());
+                                File.WriteAllBytes(exportDirectory + "temp.dat", pakModsFiles.Value[pakModsFile.Key].Read());
                                 CMN modCMN = new CMN(exportDirectory + "temp.dat");
                                 File.Delete(exportDirectory + "temp.dat");
+
+                                foreach (var child in modCMN.Root)
+                                {
+                                    localizationMerger.MergeCMN(gameCMN, exportCMN, modCMN, child);
+                                }
+
+                                exportCMN.Write(exportDatPath);
                                 break;
 
                             default:
+                                /*
                                 DAT gameDAT = new DAT(gameDatPath);
                                 DAT exportDAT = new DAT(exportDatPath);
 
@@ -230,10 +241,9 @@ namespace Ace_Combat_Merger
                                         
                                     }
                                 }
-                                exportDAT.Write(exportDatPath);
-
+                                exportDAT.Write(exportDatPath);*/
                                 break;
-                        }*/
+                        }
 
 
                         break;

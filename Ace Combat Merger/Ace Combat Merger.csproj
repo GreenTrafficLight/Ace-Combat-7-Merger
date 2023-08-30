@@ -10,10 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SharpZipLib" Version="1.4.2" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\Ace7Localization\Ace7Localization.csproj" />
     <ProjectReference Include="..\CUE4Parse\CUE4Parse\CUE4Parse.csproj" />
     <ProjectReference Include="..\UAssetAPI\UAssetAPI\UAssetAPI.csproj" />
   </ItemGroup>

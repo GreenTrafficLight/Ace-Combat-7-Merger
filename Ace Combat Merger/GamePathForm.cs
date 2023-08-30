@@ -15,41 +15,68 @@ using UAssetAPI.UnrealTypes;
 using UAssetAPI.ExportTypes;
 using UAssetAPI.PropertyTypes.Structs;
 using UAssetAPI.PropertyTypes.Objects;
+using Microsoft.Win32;
+using Ace7Localization.Formats;
 
 namespace Ace_Combat_Merger
 {
     public partial class GamePathForm : Form
     {
-        private string _GameFilePath = "";
-        private string _ModFolderPath = "";
-        private string _ExportFolderPath = "";
+        private string _gameFilePath = "";
+        private string _modFolderPath = "";
+        private string _exportFolderPath = "";
 
         private ModManager _ModManager;
 
         public string GameFilePath
         {
-            get { return _GameFilePath; }
-            set { if (_GameFilePath != value) _GameFilePath = value; }
+            get { return _gameFilePath; }
+            set 
+            { 
+                if (_gameFilePath != value) 
+                { 
+                    _gameFilePath = value;
+                    gamePaksFolderPathTextBox.Text = value;
+                } 
+            }
         }
 
         public string ModFolderPath
         {
-            get { return _ModFolderPath; }
-            set { if (_ModFolderPath != value) _ModFolderPath = value; }
+            get { return _modFolderPath; }
+            set 
+            {
+                if (_modFolderPath != value) 
+                { 
+                    _modFolderPath = value;
+                    modsFolderPathTextBox.Text = value;
+                } 
+            }
         }
 
         public string ExportFolderPath
         {
-            get { return _ExportFolderPath + "\\temp"; }
-            set { if (_ExportFolderPath != value) _ExportFolderPath = value; }
+            get { return _exportFolderPath + "\\temp"; }
+            set 
+            {
+                if (_exportFolderPath != value) 
+                {
+                    _exportFolderPath = value;
+                    exportPathTextBox.Text = value;
+                }
+                
+            }
         }
         public GamePathForm()
         {
             InitializeComponent();
 
 #if DEBUG
-            GameFilePath = "E:\\Program Files(x86)\\Steam\\steamapps\\common\\ACE COMBAT 7\\Game\\Content\\Paks";
+            //GameFilePath = "E:\\Program Files(x86)\\Steam\\steamapps\\common\\ACE COMBAT 7\\Game\\Content\\Paks";
 #endif
+
+            var strSteamInstallPath = Registry.GetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Valve\\Steam", "InstallPath", null);
+            string libraryfoldersPath = $"{strSteamInstallPath}\\steamapps\\libraryfolders.vdf";
         }
 
         #region button
@@ -60,12 +87,10 @@ namespace Ace_Combat_Merger
             {
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
-                    _GameFilePath = fbd.SelectedPath;
-                    gamePaksFolderPathTextBox.Text = _GameFilePath;
+                    GameFilePath = fbd.SelectedPath;
                     if (Directory.Exists(GameFilePath + "\\~mods"))
                     {
-                        _ModFolderPath = GameFilePath + "\\~mods";
-                        modsFolderPathTextBox.Text = _ModFolderPath;
+                        ModFolderPath = GameFilePath + "\\~mods";
                     }
                 }
             }
@@ -96,8 +121,7 @@ namespace Ace_Combat_Merger
             {
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
-                    _ModFolderPath = fbd.SelectedPath;
-                    modsFolderPathTextBox.Text = _ModFolderPath;
+                    ModFolderPath = fbd.SelectedPath;
                 }
             }
         }
@@ -108,8 +132,7 @@ namespace Ace_Combat_Merger
             {
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
-                    _ExportFolderPath = fbd.SelectedPath;
-                    exportPathTextBox.Text = _ExportFolderPath;
+                    ExportFolderPath = fbd.SelectedPath;
                 }
             }
         }
@@ -139,13 +162,18 @@ namespace Ace_Combat_Merger
 
         private void gamePaksFolderPathTextBox_TextChanged(object sender, EventArgs e)
         {
-            _GameFilePath = gamePaksFolderPathTextBox.Text;
+            GameFilePath = gamePaksFolderPathTextBox.Text;
+            int index = GameFilePath.IndexOf("Paks");
+            if (index != -1)
+            {
+                string result = GameFilePath.Substring(0, index + "Paks".Length);
+                GameFilePath = result;
+            }
+
             if (Directory.Exists(GameFilePath + "\\~mods") && string.IsNullOrEmpty(modsFolderPathTextBox.Text))
             {
-                _ModFolderPath = GameFilePath + "\\~mods";
-                modsFolderPathTextBox.Text = _ModFolderPath;
-                exportPathTextBox.Text = _ModFolderPath;
-                _ExportFolderPath = _ModFolderPath;
+                ModFolderPath = GameFilePath + "\\~mods";
+                ExportFolderPath = GameFilePath + "\\~mods";
             }
         }
 
@@ -153,12 +181,12 @@ namespace Ace_Combat_Merger
 
         private void modsFolderPathTextBox_TextChanged(object sender, EventArgs e)
         {
-            _ModFolderPath = modsFolderPathTextBox.Text;
+            ModFolderPath = modsFolderPathTextBox.Text;
         }
 
         private void exportPathTextBox_TextChanged(object sender, EventArgs e)
         {
-            _ExportFolderPath = exportPathTextBox.Text;
+            ExportFolderPath = exportPathTextBox.Text;
         }
 
         #endregion

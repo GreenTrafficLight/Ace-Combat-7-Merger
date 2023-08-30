@@ -9,10 +9,8 @@ using UAssetAPI;
 using UAssetAPI.UnrealTypes;
 using UAssetAPI.PropertyTypes.Objects;
 using CUE4Parse.FileProvider.Objects;
-using CUE4Parse.UE4.Objects.Engine;
 using Microsoft.VisualBasic;
 using System.Reflection.Metadata;
-using static System.Net.Mime.MediaTypeNames;
 using System.Numerics;
 
 namespace Ace_Combat_Merger
@@ -69,8 +67,7 @@ namespace Ace_Combat_Merger
                                         if (!dictionaryDataTable.IDs["AircraftViewerID"].Contains(modAssetRow.Value[0].ToString()))
                                         {
                                             int? aircraftViewerID = DataTableHelper.TryGetInt(modAssetRow.Value[0].ToString());
-                                            while (dictionaryDataTable.IDs["AircraftViewerID"].Contains(aircraftViewerID.ToString()))
-                                                aircraftViewerID++;
+                                            aircraftViewerID = increaseID(dictionaryDataTable, "AircraftViewerID", aircraftViewerID);
                                             modAssetRow.Value[0].RawValue = aircraftViewerID;
 
                                             exportAssetTableExport.Table.Data.Add(modAssetRow);
@@ -87,14 +84,12 @@ namespace Ace_Combat_Merger
                                             dictionaryDataTable.IDs["PlaneStringID"].Add(planeStringID);
 
                                             int? planeID = DataTableHelper.TryGetInt(modAssetRow.Value[0].ToString());
-                                            while (dictionaryDataTable.IDs["PlaneID"].Contains(planeID.ToString()))
-                                                planeID++;
+                                            planeID = increaseID(dictionaryDataTable, "PlaneID", planeID);
                                             modAssetRow.Value[0].RawValue = planeID;
                                             dictionaryDataTable.IDs["PlaneID"].Add(planeID.ToString());
                                             
                                             int? sortNumber = DataTableHelper.TryGetInt(modAssetRow.Value[20].ToString());
-                                            while (dictionaryDataTable.IDs["SortNumber"].Contains(sortNumber.ToString()))
-                                                sortNumber++;
+                                            sortNumber = increaseID(dictionaryDataTable, "SortNumber", sortNumber);
                                             modAssetRow.Value[20].RawValue = sortNumber;
                                             dictionaryDataTable.IDs["SortNumber"].Add(sortNumber.ToString());
 
@@ -119,8 +114,7 @@ namespace Ace_Combat_Merger
                                             dictionaryDataTable.IDs["PlaneStringID"].Add(planeStringID);
                                             // Get the first SkinID of the new added plane
                                             skinID = 101;
-                                            while (dictionaryDataTable.IDs["ModdedSkinID"].Contains(skinID.ToString()))
-                                                skinID += 100;
+                                            skinID = increaseID(dictionaryDataTable, "SkinID", skinID, 100);
                                             dictionaryDataTable.IDs["ModdedSkinID"].Add(skinID.ToString());
 
                                             exportAssetTableExport.Table.Data.Add(modAssetRow);
@@ -183,35 +177,38 @@ namespace Ace_Combat_Merger
                                             continue;
                                         }
 
-
-
-
                                         break;
 
                                     default:
                                         break;
                                 }
 
-                                var exportRowStateDataTable = exportStateDataTable.StateDataTableChild[j];
-
-                                var exportAssetRow = exportAssetTableExport.Table.Data[j];
-
-                                // Check modifications of existing row cells
-                                for (int k = 0; k < exportAssetRow.Value.Count; k++)
+                                /*if (gameAssetTableExport.Table.Data.Count > j)
                                 {
-                                    if ((exportAssetRow.Value[k].ToString() != modAssetRow.Value[k].ToString()) && exportRowStateDataTable.States[k] == StateDataTable.State.UNCHANGED)
+                                    var exportRowStateDataTable = exportStateDataTable.StateDataTableChild[j];
+
+                                    var exportAssetRow = exportAssetTableExport.Table.Data[j];
+
+                                    // Check modifications of existing row cells
+                                    for (int k = 0; k < exportAssetRow.Value.Count; k++)
                                     {
-                                        exportAssetRow.Value[k] = modAssetRow.Value[k];
-                                        exportRowStateDataTable.States[k] = StateDataTable.State.MODIFIED;
-                                        exportStateDataTable.States[j] = StateDataTable.State.MODIFIED;
+                                        if ((exportAssetRow.Value[k].ToString() != modAssetRow.Value[k].ToString()) && exportRowStateDataTable.States[k] == StateDataTable.State.UNCHANGED)
+                                        {
+                                            exportAssetRow.Value[k] = modAssetRow.Value[k];
+                                            exportRowStateDataTable.States[k] = StateDataTable.State.MODIFIED;
+                                            exportStateDataTable.States[j] = StateDataTable.State.MODIFIED;
+                                        }
                                     }
-                                }
+                                }*/
+
+
                             }
                         }
                         break;
                 }
             }
         }
+        
         public void BuildStateTable(UAsset uasset, StateDataTable stateDataTable, DictionaryDataTable dictionaryDataTable)
         {
             for (int i = 0; i < uasset.Exports.Count; i++)
@@ -303,7 +300,35 @@ namespace Ace_Combat_Merger
                 }
             }
         }
-    
+
+        private int increaseID(DictionaryDataTable dictionaryDataTable, string exportName, int id)
+        {
+            while (dictionaryDataTable.IDs[exportName].Contains(id.ToString()))
+                id++;
+            return id;
+        }
+        
+        private int? increaseID(DictionaryDataTable dictionaryDataTable, string exportName, int? id)
+        {
+            while (dictionaryDataTable.IDs[exportName].Contains(id.ToString()))
+                id++;
+            return id;
+        }
+
+        private int increaseID(DictionaryDataTable dictionaryDataTable, string exportName, int id, int increase)
+        {
+            while (dictionaryDataTable.IDs[exportName].Contains(id.ToString()))
+                id += increase;
+            return id;
+        }
+
+        private int? increaseID(DictionaryDataTable dictionaryDataTable, string exportName, int? id, int increase)
+        {
+            while (dictionaryDataTable.IDs[exportName].Contains(id.ToString()))
+                id += increase;
+            return id;
+        }
+
         private void addNewRow()
         {
             /*

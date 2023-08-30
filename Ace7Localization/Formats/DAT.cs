@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ace_Combat_Merger.Localization.Compression;
-using Ace_Combat_Merger.Localization.Commons;
+﻿using Ace7Localization.Stream;
+using Ace7Localization.Utils;
 
-namespace Ace_Combat_Merger.Localization.Formats
+namespace Ace7Localization.Formats
 {
     public class DAT
     {
@@ -61,7 +56,7 @@ namespace Ace_Combat_Merger.Localization.Formats
 
             uint size = (uint)data.Length + Path.GetFileNameWithoutExtension(filepath)[0] - 65;
             data = Crypt(data, size);
-            data = DATCompression.Decompress(data);
+            data = CompressionHandler.Decompress(data);
 
             DATBinaryReader br = new DATBinaryReader(data);
 
@@ -74,7 +69,7 @@ namespace Ace_Combat_Merger.Localization.Formats
 
             uint size = (uint)data.Length + letter[0] - 65;
             data = Crypt(data, size);
-            data = DATCompression.Decompress(data);
+            data = CompressionHandler.Decompress(data);
 
             DATBinaryReader br = new DATBinaryReader(data);
 
@@ -89,7 +84,7 @@ namespace Ace_Combat_Merger.Localization.Formats
 
             byte[] data = bw.DATBinaryWriterData.ToArray();
 
-            data = DATCompression.Compress(data);
+            data = CompressionHandler.Compress(data);
             uint size = (uint)data.Length + Path.GetFileNameWithoutExtension(filepath)[0] - 65;
             data = Crypt(data, size);
 

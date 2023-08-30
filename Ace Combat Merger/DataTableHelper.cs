@@ -103,6 +103,12 @@ namespace Ace_Combat_Merger
             return success ? i : null;
         }
 
+        public static int? TryParseNullable(string val)
+        {
+            int outValue;
+            return int.TryParse(val, out outValue) ? (int?)outValue : null;
+        }
+
         public static uint GetFileSignature(string path)
         {
             byte[] buffer = new byte[4];

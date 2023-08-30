@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ace_Combat_Merger.Localization.Compression
+namespace Ace7Localization.Utils
 {
-    public class DATCompression
+    public class CompressionHandler
     {
         public static byte[] Decompress(byte[] data)
         {
