@@ -29,14 +29,14 @@ namespace Ace_Combat_Merger
                     string variable = modCMN.GetVariable(child);
                     exportCMN.AddVariable(variable);
                     // Loop every game dat to add the string
-                    /*foreach(DAT dat in exportDats)
+                    foreach(DAT dat in exportDats)
                     {
                         // Find if there is the same dat in the modded files
                         DAT moddedDat = moddedDats.FirstOrDefault(moddedDatTemp => moddedDatTemp.Letter == dat.Letter);
                         // If there is, add the new string, if not, add a null string
                         string newString = moddedDat?.Strings[child.Value.StringNumber] ?? "\0";
                         dat.Strings.Add(newString);
-                    }*/
+                    }
                 }
                 MergeCMN(gameCMN, exportCMN, modCMN, exportDats, moddedDats, child);
             }
