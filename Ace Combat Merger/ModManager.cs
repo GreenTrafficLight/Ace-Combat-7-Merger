@@ -13,6 +13,8 @@ using CUE4Parse.UE4.Versions;
 using UAssetAPI;
 using UAssetAPI.UnrealTypes;
 using Ace7Localization.Formats;
+using System.Reflection.Metadata;
+using System.IO;
 
 namespace Ace_Combat_Merger
 {
@@ -72,6 +74,7 @@ namespace Ace_Combat_Merger
             UAsset gameUasset = new UAsset(assetPath, EngineVersion.VER_UE4_18, null);
             return gameUasset;
         }
+        
         private void GetGameFiles(DefaultFileProvider provider, List<KeyValuePair<string, IReadOnlyDictionary<string, GameFile>>> paksFiles)
         {
             foreach (PakFileReader pak in provider.MountedVfs.OrderBy(x => x.Name).ToList())
@@ -81,6 +84,11 @@ namespace Ace_Combat_Merger
             }
         }
 
+        List<string> paths = new List<string>
+        {
+            "Nimbus\\Content\\Blueprint\\Information",
+            "Nimbus\\Content\\Localization\\Game"
+        };
 
         private void CreateDirectories(KeyValuePair<string, IReadOnlyDictionary<string, GameFile>> paksModsGameFiles)
         {
@@ -89,35 +97,44 @@ namespace Ace_Combat_Merger
                 string assetFileName = Path.GetFileName(pakModsGameFiles.Key);
                 string assetFileNameDirectory = Path.GetDirectoryName(pakModsGameFiles.Key);
 
+                if (!paths.Contains(assetFileNameDirectory)) {
+                    continue;
+                }
+
                 string originalDirectory = ExportFolderPath + "\\original\\" + assetFileNameDirectory + "\\";
                 string exportDirectory = ExportFolderPath + "\\export\\" + assetFileNameDirectory + "\\";
 
                 Directory.CreateDirectory(originalDirectory);
                 Directory.CreateDirectory(exportDirectory);
 
-                switch (assetFileNameDirectory)
-                {
-                    case "Nimbus\\Content\\Blueprint\\Information":
-                        break;
-
-                    default:
-                        break;
-                }
-
                 byte[] gameFile = null;
 
                 // Get the original .uasset from the game paks
-                foreach (var pakGameFiles in PaksGameFiles)
+                if (!File.Exists(exportDirectory + assetFileName))
                 {
-                    if (pakGameFiles.Value.ContainsKey(pakModsGameFiles.Key))
+                    foreach (var pakGameFiles in PaksGameFiles)
                     {
-                        gameFile = pakGameFiles.Value[pakModsGameFiles.Key].Read();
-                    }
+                        if (pakGameFiles.Value.ContainsKey(pakModsGameFiles.Key) && (!File.Exists(originalDirectory + assetFileName) || pakGameFiles.Key.EndsWith("_P")))
+                        {
+                            // Get all the game dats if there is a modified Cmn.dat in the mod
+                            if (Path.GetExtension(assetFileName) == ".dat" && assetFileName != "Cmn.dat" && paksModsGameFiles.Value.ContainsKey("Nimbus/Content/Localization/Game/Cmn.dat"))
+                            {        
+                                string[] letters = new string[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"};
+                                foreach (string letter in letters) {
+                                    if (pakGameFiles.Value.ContainsKey("Nimbus/Content/Localization/Game/" + letter + ".dat"))
+                                    {
+                                        gameFile = pakGameFiles.Value["Nimbus/Content/Localization/Game/" + letter + ".dat"].Read();
+                                        File.WriteAllBytes(originalDirectory + letter + ".dat", gameFile);
+                                        File.WriteAllBytes(exportDirectory + letter + ".dat", gameFile);
+                                    }
+                                }
+                                continue;
+                            }
 
-                    if (gameFile != null && (!File.Exists(originalDirectory + assetFileName) || pakGameFiles.Key.EndsWith("_P")))
-                    {
-                        File.WriteAllBytes(originalDirectory + assetFileName, gameFile);
-                        File.WriteAllBytes(exportDirectory + assetFileName, gameFile);
+                            gameFile = pakGameFiles.Value[pakModsGameFiles.Key].Read();
+                            File.WriteAllBytes(originalDirectory + assetFileName, gameFile);
+                            File.WriteAllBytes(exportDirectory + assetFileName, gameFile);
+                        }
                     }
                 }
             }
@@ -125,10 +142,15 @@ namespace Ace_Combat_Merger
         
         private void WriteModifications(KeyValuePair<string, IReadOnlyDictionary<string, GameFile>> pakModsFiles)
         {
+            bool localizationMerged = false;
             foreach (var pakModsFile in pakModsFiles.Value)
             {
                 string assetFileName = Path.GetFileName(pakModsFile.Key);
                 string assetFileNameDirectory = Path.GetDirectoryName(pakModsFile.Key);
+
+                if (!paths.Contains(assetFileNameDirectory)) {
+                    continue;
+                }
 
                 string originalDirectory = ExportFolderPath + "\\original\\" + assetFileNameDirectory + "\\";
                 string exportDirectory = ExportFolderPath + "\\export\\" + assetFileNameDirectory + "\\";
@@ -184,68 +206,42 @@ namespace Ace_Combat_Merger
 
                     // Localization merger
                     case ".dat":
-                        string gameDatPath = originalDirectory + Path.GetFileNameWithoutExtension(assetFileName) + ".dat";
-                        string exportDatPath = exportDirectory + Path.GetFileNameWithoutExtension(assetFileName) + ".dat";
-
-                        switch (Path.GetFileNameWithoutExtension(assetFileName))
+                        if (localizationMerged == false)
                         {
-                            case "Cmn":
-                                CMN gameCMN = new CMN(gameDatPath);
-                                CMN exportCMN = new CMN(exportDatPath);
+                            DAT[] exportDats = Directory.GetFiles(exportDirectory)
+                                .Where(path => Path.GetFileNameWithoutExtension(path) != "Cmn")
+                                .Select(path => new DAT(path, Path.GetFileNameWithoutExtension(path)[0]))
+                                .ToArray();
 
-                                File.WriteAllBytes(exportDirectory + "temp.dat", pakModsFiles.Value[pakModsFile.Key].Read());
+                            DAT[] moddedDats = pakModsFiles.Value.Keys
+                                .Where(key => key.Contains("Nimbus/Content/Localization/Game/") && Path.GetFileNameWithoutExtension(key) != "Cmn")
+                                .Select(key => new DAT(pakModsFiles.Value[key].Read(), Path.GetFileNameWithoutExtension(key)[0]))
+                                .ToArray();
+
+                            if (pakModsFiles.Value.ContainsKey("Nimbus/Content/Localization/Game/Cmn.dat"))
+                            {
+                                CMN gameCMN = new CMN(originalDirectory + "Cmn.dat");
+                                // The finish CMN at the end of the program
+                                CMN exportCMN = new CMN(exportDirectory + "Cmn.dat");
+
+                                // Get the modded CMN to get its added variables
+                                File.WriteAllBytes(exportDirectory + "temp.dat", pakModsFiles.Value["Nimbus/Content/Localization/Game/Cmn.dat"].Read());
                                 CMN modCMN = new CMN(exportDirectory + "temp.dat");
                                 File.Delete(exportDirectory + "temp.dat");
 
                                 foreach (var child in modCMN.Root)
                                 {
-                                    localizationMerger.MergeCMN(gameCMN, exportCMN, modCMN, child);
+                                    localizationMerger.MergeCMN(gameCMN, exportCMN, modCMN, exportDats, moddedDats, child);
                                 }
 
-                                exportCMN.Write(exportDatPath);
-                                break;
-
-                            default:
-                                /*
-                                DAT gameDAT = new DAT(gameDatPath);
-                                DAT exportDAT = new DAT(exportDatPath);
-
-                                File.WriteAllBytes(exportDirectory + "temp.dat", pakModsFiles[pakModsFile.Key].Read());
-                                DAT modDAT = new DAT(exportDirectory + "temp.dat", assetFileName);
-                                File.Delete(exportDirectory + "temp.dat");
-
-                                List<StateDataTable.State> stateDAT;
-                                if (StateDATs.ContainsKey(Path.GetFileNameWithoutExtension(assetFileName)))
+                                foreach (DAT exportDat in exportDats)
                                 {
-                                    stateDAT = StateDATs[Path.GetFileNameWithoutExtension(assetFileName)];
+                                    exportDat.Write(exportDirectory, exportDat.Letter);
                                 }
-                                else
-                                {
-                                    stateDAT = new List<StateDataTable.State>();
-                                    foreach (string str in gameDAT.Strings)
-                                        stateDAT.Add(StateDataTable.State.UNCHANGED);
-                                    StateDATs[Path.GetFileNameWithoutExtension(assetFileName)] = stateDAT;
-                                }
-
-                                for (int j = 0; j < modDAT.Strings.Count; j++)
-                                {
-                                    if (gameDAT.Strings.Count <= j)
-                                        exportDAT.Strings.Add(modDAT.Strings[j]);
-                                    else
-                                    {
-                                        if (!exportDAT.Strings[j].Equals(modDAT.Strings[j]) && stateDAT[j] == StateDataTable.State.UNCHANGED)
-                                        {
-                                            exportDAT.Strings[j] = modDAT.Strings[j];
-                                            stateDAT[j] = StateDataTable.State.MODIFIED;
-                                        }
-                                        
-                                    }
-                                }
-                                exportDAT.Write(exportDatPath);*/
-                                break;
+                                exportCMN.Write(exportDirectory + "Cmn.dat");
+                            }
                         }
-
-
+                        localizationMerged = true;
                         break;
 
                     default:

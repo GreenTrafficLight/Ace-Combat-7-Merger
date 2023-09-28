@@ -1,26 +1,37 @@
 ﻿using Ace7Localization.Stream;
 using Ace7Localization.Utils;
+using System.IO;
 
 namespace Ace7Localization.Formats
 {
     public class DAT
     {
+        public char Letter;
         public List<string> Strings = new List<string>();
 
-        public DAT()
+        /// <summary>
+        /// Read a DAT file from a path
+        /// </summary>
+        /// <param name="path">The path of the DAT file</param>
+        /// <param name="letter">The name of the DAT file</param>
+        public DAT(string path, char letter)
         {
-        }
-
-        public DAT(string path)
-        {
-            Read(path);
-        }
-
-        public DAT(string path, string letter)
-        {
+            Letter = letter;
             Read(path, letter);
         }
 
+        public DAT(byte[] data, char letter)
+        {
+            Letter = letter;
+            Read(data, letter);
+        }
+
+        /// <summary>
+        /// Crypt/Decrypt a DAT file
+        /// </summary>
+        /// <param name="data">Buffer of the DAT file</param>
+        /// <param name="size">Size of the DAT file</param>
+        /// <returns></returns>
         public static byte[] Crypt(byte[] data, uint size)
         {
             uint ebx = 0;
@@ -50,11 +61,17 @@ namespace Ace7Localization.Formats
             return data;
         }
 
-        public void Read(string filepath)
+        /// <summary>
+        /// Read a DAT file from a path
+        /// </summary>
+        /// <param name="filepath">The path of the DAT file</param>
+        /// <param name="letter">The letter of the DAT file</param>
+        public void Read(string filepath, char letter)
         {
             byte[] data = File.ReadAllBytes(filepath);
 
-            uint size = (uint)data.Length + Path.GetFileNameWithoutExtension(filepath)[0] - 65;
+            uint size = ((uint)data.Length + letter - 65);
+            
             data = Crypt(data, size);
             data = CompressionHandler.Decompress(data);
 
@@ -63,11 +80,10 @@ namespace Ace7Localization.Formats
             ReadStrings(br);
         }
 
-        public void Read(string filepath, string letter)
+        public void Read(byte[] data, char letter)
         {
-            byte[] data = File.ReadAllBytes(filepath);
+            uint size = ((uint)data.Length + letter - 65);
 
-            uint size = (uint)data.Length + letter[0] - 65;
             data = Crypt(data, size);
             data = CompressionHandler.Decompress(data);
 
@@ -76,7 +92,12 @@ namespace Ace7Localization.Formats
             ReadStrings(br);
         }
 
-        public void Write(string filepath)
+        /// <summary>
+        /// Write a DAT file to a path
+        /// </summary>
+        /// <param name="filepath">The path for the new DAT file</param>
+        /// <param name="letter">The leffer for the DAT file</param>
+        public void Write(string filepath, char letter)
         {
             DATBinaryWriter bw = new DATBinaryWriter();
 
@@ -85,12 +106,17 @@ namespace Ace7Localization.Formats
             byte[] data = bw.DATBinaryWriterData.ToArray();
 
             data = CompressionHandler.Compress(data);
-            uint size = (uint)data.Length + Path.GetFileNameWithoutExtension(filepath)[0] - 65;
+            uint size = ((uint)data.Length + letter - 65);
+
             data = Crypt(data, size);
 
-            File.WriteAllBytes(filepath, data);
+            File.WriteAllBytes(filepath + letter + ".dat", data);
         }
 
+        /// <summary>
+        /// Read strings inside a DAT file
+        /// </summary>
+        /// <param name="reader"></param>
         private void ReadStrings(DATBinaryReader reader)
         {
             int index = 0;
@@ -102,6 +128,10 @@ namespace Ace7Localization.Formats
 
         }
 
+        /// <summary>
+        /// Write strings inside a DAT file
+        /// </summary>
+        /// <param name="writer"></param>
         private void WriteStrings(DATBinaryWriter writer)
         {
             foreach (string s in Strings)

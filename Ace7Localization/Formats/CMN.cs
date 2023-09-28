@@ -98,6 +98,11 @@ namespace Ace7Localization.Formats
             return variable;
         }
 
+        /// <summary>
+        /// Add a new variable in the CMN
+        /// </summary>
+        /// <param name="value">Variable to be added</param>
+        /// <param name="stringNumber">String number tied to this variable</param>
         public void AddVariable(string value, int? stringNumber = null)
         {
             KeyValuePair<string, CMNString> parent = Root.FirstOrDefault(x => value.StartsWith(x.Key));
@@ -115,6 +120,12 @@ namespace Ace7Localization.Formats
             MergeVariables(parent, value, stringNumber);
         }
 
+        /// <summary>
+        /// Add a new variable in the CMN
+        /// </summary>
+        /// <param name="value">Variable to be added</param>
+        /// <param name="parent">The parent of the variable that will be added</param>
+        /// <param name="stringNumber">String number tied to this variable</param>
         public void AddVariable(string value, KeyValuePair<string, CMNString> parent, int? stringNumber = null)
         {
             MergeVariables(parent, value, stringNumber);
@@ -122,37 +133,47 @@ namespace Ace7Localization.Formats
         
         private void MergeVariables(KeyValuePair<string, CMNString> parent, string value, int? stringNumber = null)
         {
-            string subString;
+            // Index where the added variable will be placed in the parent childrens
             int sortIndex = 0;
             foreach (KeyValuePair<string, CMNString> child in parent.Value.childrens)
             {
                 int index = StringUtils.GetCommonSubstringIndex(child.Key, value);
+                
+                // If there is a node to merge
                 if (index != -1)
                 {
-                    subString = value.Substring(0, index + 1);
+                    string subString = value.Substring(0, index + 1);
 
                     // Make a new node for the merged variable
-                    KeyValuePair<string, CMNString> newCMNString = new KeyValuePair<string, CMNString>(subString, new CMNString(-1, parent));
+                    KeyValuePair<string, CMNString> mergedCMNString = new KeyValuePair<string, CMNString>(subString, new CMNString(-1, parent));
 
                     // Add the existing node in the new merged variable
-                    newCMNString.Value.childrens.Add(new KeyValuePair<string, CMNString>(child.Key.Substring(index + 1), child.Value));
-                    // Add the new node in the new merged variable
-                    if (stringNumber == null) {
-                        newCMNString.Value.childrens.Add(new KeyValuePair<string, CMNString>(value.Substring(index + 1), new CMNString(StringsCount++)));
-                    }
-                    else {
-                        newCMNString.Value.childrens.Add(new KeyValuePair<string, CMNString>(value.Substring(index + 1), new CMNString(stringNumber.Value)));
-                    }
+                    mergedCMNString.Value.childrens.Add(new KeyValuePair<string, CMNString>(child.Key.Substring(index + 1), new CMNString(child.Value.StringNumber, mergedCMNString)));
                     
+                    // Add the new node in the new merged variable
+                    CMNString newCMNString = stringNumber == null ? new CMNString(StringsCount++, mergedCMNString) : new CMNString(stringNumber.Value, mergedCMNString);
+                    // Compare the casing and number with the existing node
+                    var comparisonResult = string.Compare(value.Substring(index + 1), child.Key.Substring(index + 1), StringComparison.Ordinal);
+                    mergedCMNString.Value.childrens.Insert(comparisonResult < 0 ? 0 : newCMNString.childrens.Count, new KeyValuePair<string, CMNString>(value.Substring(index + 1), newCMNString));
+
                     // Insert the merged variable in the parent node
-                    parent.Value.childrens.Insert(sortIndex, new KeyValuePair<string, CMNString>(newCMNString.Key, newCMNString.Value));
+                    parent.Value.childrens.Insert(sortIndex, new KeyValuePair<string, CMNString>(mergedCMNString.Key, mergedCMNString.Value));
                     // Remove the existing node from the parent node
                     parent.Value.childrens.Remove(child);
 
-                    break;
+                    return;
                 }
+
+                // Compare the casing and number of the added variable with the existing childrens
+                if (string.Compare(value, child.Key, StringComparison.Ordinal) < 0) {
+                    break; // Break the loop if the added variable has a inferior order
+                }
+
+                // Increase the index where the added variable will be placed in the parent childrens
                 sortIndex++;
             }
+            // If there isn't any node to merge
+            parent.Value.childrens.Insert(sortIndex, new KeyValuePair<string, CMNString>(value, stringNumber == null ? new CMNString(StringsCount++, parent) : new CMNString(stringNumber.Value, parent)));
         }
 
         /// <summary>
@@ -160,12 +181,12 @@ namespace Ace7Localization.Formats
         /// </summary>
         private List<KeyValuePair<string, CMNString>> ReadVariables(DATBinaryReader br, KeyValuePair<string, CMNString> parent, List<KeyValuePair<string, CMNString>> node)
         {
-            int count = br.ReadInt();
+            int count = br.ReadInt32();
             for (int i = 0; i < count; i++)
             {
-                int nameLength = br.ReadInt();
+                int nameLength = br.ReadInt32();
                 string name = br.ReadString(nameLength);
-                int stringNumber = br.ReadInt();
+                int stringNumber = br.ReadInt32();
                 // Get the maximum the of the strings contained in the CMN
                 if (StringsCount < stringNumber)
                 {

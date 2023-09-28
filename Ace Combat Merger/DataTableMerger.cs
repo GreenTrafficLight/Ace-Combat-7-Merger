@@ -66,8 +66,9 @@ namespace Ace_Combat_Merger
                                     case "AircraftViewerDataTable":
                                         if (!dictionaryDataTable.IDs["AircraftViewerID"].Contains(modAssetRow.Value[0].ToString()))
                                         {
-                                            int? aircraftViewerID = DataTableHelper.TryGetInt(modAssetRow.Value[0].ToString());
-                                            aircraftViewerID = increaseID(dictionaryDataTable, "AircraftViewerID", aircraftViewerID);
+                                            int aircraftViewerID = 1;
+                                            aircraftViewerID = increaseID(dictionaryDataTable, "ExportAircraftViewerID", aircraftViewerID);
+                                            dictionaryDataTable.IDs["ExportAircraftViewerID"].Add(aircraftViewerID.ToString());
                                             modAssetRow.Value[0].RawValue = aircraftViewerID;
 
                                             exportAssetTableExport.Table.Data.Add(modAssetRow);
@@ -83,15 +84,15 @@ namespace Ace_Combat_Merger
                                         {
                                             dictionaryDataTable.IDs["PlaneStringID"].Add(planeStringID);
 
-                                            int? planeID = DataTableHelper.TryGetInt(modAssetRow.Value[0].ToString());
-                                            planeID = increaseID(dictionaryDataTable, "PlaneID", planeID);
-                                            modAssetRow.Value[0].RawValue = planeID;
-                                            dictionaryDataTable.IDs["PlaneID"].Add(planeID.ToString());
-                                            
-                                            int? sortNumber = DataTableHelper.TryGetInt(modAssetRow.Value[20].ToString());
+                                            int planeId = 100;
+                                            planeId = increaseID(dictionaryDataTable, "PlaneID", planeId);
+                                            dictionaryDataTable.IDs["PlaneID"].Add(planeId.ToString());
+                                            modAssetRow.Value[0].RawValue = planeId;
+
+                                            int sortNumber = 1;
                                             sortNumber = increaseID(dictionaryDataTable, "SortNumber", sortNumber);
-                                            modAssetRow.Value[20].RawValue = sortNumber;
                                             dictionaryDataTable.IDs["SortNumber"].Add(sortNumber.ToString());
+                                            modAssetRow.Value[20].RawValue = sortNumber;
 
                                             DataTableHelper.AddToNameMap(exportUasset, modAssetRow.Value[4]); // Reference
                                             DataTableHelper.AddToNameMap(exportUasset, modAssetRow.Value[19]); // HangarAcquireCamera
@@ -114,8 +115,8 @@ namespace Ace_Combat_Merger
                                             dictionaryDataTable.IDs["PlaneStringID"].Add(planeStringID);
                                             // Get the first SkinID of the new added plane
                                             skinID = 101;
-                                            skinID = increaseID(dictionaryDataTable, "SkinID", skinID, 100);
-                                            dictionaryDataTable.IDs["ModdedSkinID"].Add(skinID.ToString());
+                                            skinID = increaseID(dictionaryDataTable, "ExportSkinID", skinID, 100);
+                                            dictionaryDataTable.IDs["ExportSkinID"].Add(skinID.ToString());
 
                                             exportAssetTableExport.Table.Data.Add(modAssetRow);
                                             exportStateDataTable.StateDataTableChild.Add(new StateDataTable());
@@ -137,20 +138,20 @@ namespace Ace_Combat_Merger
                                             // Find the first SkinID of the plane by finding the plane string IDs
                                             var skinStructPropertyData = exportAssetTableExport.Table.Data.First(structPropertyData => structPropertyData.Value[1].ToString().Equals(planeStringID));
                                             // Get the index of the first SkinID
-                                            int index = dictionaryDataTable.IDs["ModdedSkinID"].IndexOf(skinStructPropertyData.Value[0].ToString());
+                                            int index = dictionaryDataTable.IDs["ExportSkinID"].IndexOf(skinStructPropertyData.Value[0].ToString());
 
                                             // Increase SkinID and index to add the new SkinID
                                             int.TryParse(skinStructPropertyData.Value[0].ToString(), out skinID);
-                                            while (dictionaryDataTable.IDs["ModdedSkinID"].Contains(skinID.ToString()))
+                                            while (dictionaryDataTable.IDs["ExportSkinID"].Contains(skinID.ToString()))
                                             {
                                                 skinID++;
                                                 index++;
                                             }
                                                
                                             // Add the new SkinID to the end of the dataTable
-                                            if (dictionaryDataTable.IDs["ModdedSkinID"].Count <= index)
+                                            if (dictionaryDataTable.IDs["ExportSkinID"].Count <= index)
                                             {
-                                                dictionaryDataTable.IDs["ModdedSkinID"].Add(skinID.ToString());
+                                                dictionaryDataTable.IDs["ExportSkinID"].Add(skinID.ToString());
                                                 
                                                 exportAssetTableExport.Table.Data.Add(modAssetRow);
                                                 exportStateDataTable.StateDataTableChild.Add(new StateDataTable());
@@ -159,7 +160,7 @@ namespace Ace_Combat_Merger
                                             // Insert the new SkinID in the dataTable
                                             else
                                             {
-                                                dictionaryDataTable.IDs["ModdedSkinID"].Insert(index, skinID.ToString());
+                                                dictionaryDataTable.IDs["ExportSkinID"].Insert(index, skinID.ToString());
                                                 
                                                 exportAssetTableExport.Table.Data.Insert(index, modAssetRow);
                                                 exportStateDataTable.StateDataTableChild.Insert(index, new StateDataTable());
@@ -238,7 +239,7 @@ namespace Ace_Combat_Merger
                         dictionaryDataTable.IDs.Add("PlaneStringID", new List<string>());
                         dictionaryDataTable.IDs.Add("SortNumber", new List<string>());
 
-                        dictionaryDataTable.IDs.Add("ModdedSkinID", new List<string>());
+                        dictionaryDataTable.IDs.Add("ExportSkinID", new List<string>());
                         break;
 
                     default:
@@ -288,7 +289,7 @@ namespace Ace_Combat_Merger
 
                                         // Used to give a new ID
                                         // Where instead "SkinID" is used to detect which ID are from a mod
-                                        dictionaryDataTable.IDs["ModdedSkinID"].Add(originalAssetRow.Value[0].ToString());
+                                        dictionaryDataTable.IDs["ExportSkinID"].Add(originalAssetRow.Value[0].ToString());
                                         break;
 
                                     default:

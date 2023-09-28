@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace Ace7Localization.Stream
 {
-    public class DATBinaryReader
+    public class DATBinaryReader : BinaryReader
     {
 
-        public List<byte> DATBinaryReaderData;
+        public byte[] DATBinaryReaderData;
 
         public int Position = 0;
         public int Length = 0;
 
-        public DATBinaryReader(byte[] data)
+        public DATBinaryReader(byte[] data) : base(new MemoryStream(data))
         {
-            DATBinaryReaderData = data.ToList();
+            DATBinaryReaderData = data;
             Length = data.Length;
         }
 
@@ -28,47 +28,47 @@ namespace Ace7Localization.Stream
                 Position = Length - position;
         }
 
-        public byte[] GetBytes(int count)
+        public override byte[] ReadBytes(int count)
         {
-            byte[] array;
-            array = DATBinaryReaderData.GetRange(Position, count).ToArray();
+            byte[] array = new byte[count];
+            Array.Copy(DATBinaryReaderData, Position, array, 0, count);
             return array;
         }
 
-        public byte ReadUByte()
+        public override byte ReadByte()
         {
             byte value = DATBinaryReaderData[Position];
             Position++;
             return value;
         }
 
-        public sbyte ReadByte()
+        public override sbyte ReadSByte()
         {
             sbyte value = (sbyte)DATBinaryReaderData[Position];
             Position++;
             return value;
         }
 
-        public int ReadInt()
+        public override int ReadInt32()
         {
-            int value = BitConverter.ToInt32(GetBytes(4), 0);
+            int value = BitConverter.ToInt32(ReadBytes(4), 0);
             Position += 4;
             return value;
         }
 
-        public uint ReadUInt()
+        public override uint ReadUInt32()
         {
-            uint value = BitConverter.ToUInt32(GetBytes(4), 0);
+            uint value = BitConverter.ToUInt32(ReadBytes(4), 0);
             Position += 4;
             return value;
         }
-        public string ReadString()
+        public override string ReadString()
         {
             List<byte> StringData = new List<byte>();
 
             while (true)
             {
-                StringData.Add(ReadUByte());
+                StringData.Add(ReadByte());
                 if (StringData[StringData.Count - 1] == 0)
                     break;
             }
@@ -78,12 +78,12 @@ namespace Ace7Localization.Stream
 
         public string ReadString(int length)
         {
-            List<byte> StringData = new List<byte>();
+            byte[] StringData = new byte[length];
 
             for (int i = 0; i < length; i++)
-                StringData.Add(ReadUByte());
+                StringData[i] = ReadByte();
 
-            return Encoding.UTF8.GetString(StringData.ToArray());
+            return Encoding.UTF8.GetString(StringData);
         }
     }
 }

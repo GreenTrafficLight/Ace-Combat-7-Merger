@@ -9,6 +9,11 @@ namespace Ace7Localization.Utils
 {
     public class CompressionHandler
     {
+        /// <summary>
+        /// Decompress a zlib data
+        /// </summary>
+        /// <param name="data">Buffer that is decompressed</param>
+        /// <returns>A decompressed zlib buffer</returns>
         public static byte[] Decompress(byte[] data)
         {
             Inflater decompressor = new Inflater();
@@ -26,6 +31,11 @@ namespace Ace7Localization.Utils
             return bos.ToArray();
         }
 
+        /// <summary>
+        /// Compress data to zlib
+        /// </summary>
+        /// <param name="data">Buffer that is compressed</param>
+        /// <returns>A compressed zlib buffer</returns>
         public static byte[] Compress(byte[] data)
         {
             Deflater compressor = new Deflater();
