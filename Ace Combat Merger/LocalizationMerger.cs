@@ -25,7 +25,7 @@ namespace Ace_Combat_Merger
             foreach (KeyValuePair<string, CMNString> child in parent.Value.childrens)
             {
                 // Check if the variable is a new one by comparing with the unmodified game CMN strings count
-                if (gameCMN.StringsCount < child.Value.StringNumber)
+                if (gameCMN.StringsCount <= child.Value.StringNumber)
                 {
                     string variable = modCMN.GetVariable(child);
                     exportCMN.AddVariable(variable);
