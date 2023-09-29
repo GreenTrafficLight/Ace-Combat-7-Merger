@@ -11,7 +11,7 @@ using UAssetAPI.PropertyTypes.Objects;
 using UAssetAPI.PropertyTypes.Structs;
 using UAssetAPI.UnrealTypes;
 
-namespace Ace_Combat_Merger
+namespace Ace_Combat_Merger.Utils
 {
     public static class DataTableHelper
     {
@@ -19,7 +19,7 @@ namespace Ace_Combat_Merger
         {
             return null;
         }
-        
+
         public static bool ContainsRowName(DataTableExport dataTableExport, string name)
         {
             return dataTableExport.Table.Data.Any(row => row.Name.ToString().Equals(name));
@@ -29,12 +29,12 @@ namespace Ace_Combat_Merger
         {
             return dataTableExport.Table.Data[dataTableExport.Table.Data.FindIndex(row => row.Name.ToString().Equals(name))];
         }
-        
+
         public static StructPropertyData GetRowStruct(DataTableExport dataTableExport, int index)
         {
             return dataTableExport.Table.Data[index];
         }
-        
+
         public static bool TableContainsValue(UDataTable table, string name, int? value)
         {
             if (table == null)
@@ -79,7 +79,7 @@ namespace Ace_Combat_Merger
         {
             if (propertyData == null)
                 return false;
-            return propertyData.Name.ToString().Equals(name) && TryGetInt(propertyData.ToString()) == value;
+            return propertyData.Name.ToString().Equals(name) && propertyData.ToString().TryGetInt() == value;
         }
 
         public static void AddToNameMap(UAsset exportAsset, PropertyData propertyData)
@@ -106,7 +106,7 @@ namespace Ace_Combat_Merger
         public static int? TryParseNullable(string val)
         {
             int outValue;
-            return int.TryParse(val, out outValue) ? (int?)outValue : null;
+            return int.TryParse(val, out outValue) ? outValue : null;
         }
 
         public static uint GetFileSignature(string path)
@@ -119,7 +119,7 @@ namespace Ace_Combat_Merger
             }
             return BitConverter.ToUInt32(buffer, 0);
         }
-    
+
         public static void GetPackageFromPaks(string packageName, string exportPath, List<IReadOnlyDictionary<string, GameFile>> paksFiles)
         {
             foreach (var pakFiles in paksFiles)
