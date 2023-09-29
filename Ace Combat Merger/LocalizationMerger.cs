@@ -24,18 +24,17 @@ namespace Ace_Combat_Merger
         {
             foreach (KeyValuePair<string, CMNString> child in parent.Value.childrens)
             {
+                // Check if the variable is a new one by comparing with the unmodified game CMN strings count
                 if (gameCMN.StringsCount < child.Value.StringNumber)
                 {
                     string variable = modCMN.GetVariable(child);
                     exportCMN.AddVariable(variable);
-                    // Loop every game dat to add the string
-                    foreach(DAT dat in exportDats)
+                    // Loop every mod dat to add the string
+                    foreach (DAT moddedDat in moddedDats)
                     {
-                        // Find if there is the same dat in the modded files
-                        DAT moddedDat = moddedDats.FirstOrDefault(moddedDatTemp => moddedDatTemp.Letter == dat.Letter);
-                        // If there is, add the new string, if not, add a null string
-                        string newString = moddedDat?.Strings[child.Value.StringNumber] ?? "\0";
-                        dat.Strings.Add(newString);
+                        DAT exportDat = exportDats[moddedDat.Letter - 65];
+                        string newString = moddedDat.Strings[child.Value.StringNumber];
+                        exportDat.Strings.Add(newString);
                     }
                 }
                 MergeCMN(gameCMN, exportCMN, modCMN, exportDats, moddedDats, child);
