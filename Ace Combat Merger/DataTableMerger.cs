@@ -177,12 +177,7 @@ namespace Ace_Combat_Merger
                 exportStateDataTable.States.Add(StateDataTable.State.ADDED);
 
                 modAssetTableExport.Table.Data[j].Value[0].RawValue = skinID; // SkinID
-                modAssetTableExport.Table.Data[j].Value[2].RawValue = skinID % 100 - 1; // SkinNo
                 modAssetTableExport.Table.Data[j].Value[3].RawValue = skinID; // SortNumber
-                if (skinID % 100 == 1)
-                    modAssetTableExport.Table.Data[j].Value[7].RawValue = new FString($"/Game/Blueprint/Player/Pawn/AcePlayerPawn_{planeStringID}.AcePlayerPawn_{planeStringID}_C");
-                else
-                    modAssetTableExport.Table.Data[j].Value[7].RawValue = new FString($"/Game/Blueprint/Player/Pawn/AcePlayerPawn_{planeStringID}_s{skinID % 100 - 1:00}.AcePlayerPawn_{planeStringID}_s{skinID % 100 - 1:00}_C");
 
                 return true;
             }
@@ -222,12 +217,7 @@ namespace Ace_Combat_Merger
                 }
 
                 modAssetTableExport.Table.Data[j].Value[0].RawValue = skinID; // SkinID
-                modAssetTableExport.Table.Data[j].Value[2].RawValue = skinID % 100 - 1; // SkinNo
                 modAssetTableExport.Table.Data[j].Value[3].RawValue = skinID; // SortNumber
-                if (skinID % 100 == 1)
-                    modAssetTableExport.Table.Data[j].Value[7].RawValue = new FString($"/Game/Blueprint/Player/Pawn/AcePlayerPawn_{planeStringID}.AcePlayerPawn_{planeStringID}_C");
-                else
-                    modAssetTableExport.Table.Data[j].Value[7].RawValue = new FString($"/Game/Blueprint/Player/Pawn/Skin/AcePlayerPawn_{planeStringID}_s{skinID % 100 - 1:00}.AcePlayerPawn_{planeStringID}_s{skinID % 100 - 1:00}_C");
 
                 return true;
             }
