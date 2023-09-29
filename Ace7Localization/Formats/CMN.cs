@@ -105,6 +105,8 @@ namespace Ace7Localization.Formats
         /// <param name="stringNumber">String number tied to this variable</param>
         public void AddVariable(string value, int? stringNumber = null)
         {
+            //StringsCount++;
+
             KeyValuePair<string, CMNString> parent = Root.FirstOrDefault(x => value.StartsWith(x.Key));
             while (parent.Value != null)
             {
@@ -117,7 +119,10 @@ namespace Ace7Localization.Formats
                 parent = child;
             }
 
-            MergeVariables(parent, value, stringNumber);
+            if (value != "") {
+                MergeVariables(parent, value, stringNumber);
+            }
+            
         }
 
         /// <summary>
@@ -154,7 +159,7 @@ namespace Ace7Localization.Formats
                     CMNString newCMNString = stringNumber == null ? new CMNString(StringsCount++, mergedCMNString) : new CMNString(stringNumber.Value, mergedCMNString);
                     // Compare the casing and number with the existing node
                     var comparisonResult = string.Compare(value.Substring(index + 1), child.Key.Substring(index + 1), StringComparison.Ordinal);
-                    mergedCMNString.Value.childrens.Insert(comparisonResult < 0 ? 0 : newCMNString.childrens.Count, new KeyValuePair<string, CMNString>(value.Substring(index + 1), newCMNString));
+                    mergedCMNString.Value.childrens.Insert(comparisonResult < 0 ? 0 : mergedCMNString.Value.childrens.Count, new KeyValuePair<string, CMNString>(value.Substring(index + 1), newCMNString));
 
                     // Insert the merged variable in the parent node
                     parent.Value.childrens.Insert(sortIndex, new KeyValuePair<string, CMNString>(mergedCMNString.Key, mergedCMNString.Value));
