@@ -152,15 +152,24 @@ namespace Ace7Localization.Formats
                     // Make a new node for the merged variable
                     KeyValuePair<string, CMNString> mergedCMNString = new KeyValuePair<string, CMNString>(subString, new CMNString(-1, parent));
 
+                    /// Existing node
+                    // Substring the variable of the existing node
+                    KeyValuePair<string, CMNString> existingCMNString = new KeyValuePair<string, CMNString>(child.Key.Substring(index + 1), new CMNString(child.Value.StringNumber, mergedCMNString));
+                    // Add the childrens of the existing node
+                    foreach (KeyValuePair<string, CMNString> existingCMNStringChild in child.Value.childrens){
+                        existingCMNString.Value.childrens.Add(existingCMNStringChild);
+                    }
                     // Add the existing node in the new merged variable
-                    mergedCMNString.Value.childrens.Add(new KeyValuePair<string, CMNString>(child.Key.Substring(index + 1), new CMNString(child.Value.StringNumber, mergedCMNString)));
+                    mergedCMNString.Value.childrens.Add(existingCMNString);
                     
+                    /// New node
                     // Add the new node in the new merged variable
                     CMNString newCMNString = stringNumber == null ? new CMNString(StringsCount++, mergedCMNString) : new CMNString(stringNumber.Value, mergedCMNString);
                     // Compare the casing and number with the existing node
                     var comparisonResult = string.Compare(value.Substring(index + 1), child.Key.Substring(index + 1), StringComparison.Ordinal);
                     mergedCMNString.Value.childrens.Insert(comparisonResult < 0 ? 0 : mergedCMNString.Value.childrens.Count, new KeyValuePair<string, CMNString>(value.Substring(index + 1), newCMNString));
 
+                    /// Parent node
                     // Insert the merged variable in the parent node
                     parent.Value.childrens.Insert(sortIndex, new KeyValuePair<string, CMNString>(mergedCMNString.Key, mergedCMNString.Value));
                     // Remove the existing node from the parent node
