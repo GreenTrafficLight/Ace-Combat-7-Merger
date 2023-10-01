@@ -15,11 +15,6 @@ namespace Ace_Combat_Merger.Utils
 {
     public static class DataTableHelper
     {
-        public static List<string> GetRowNames(DataTableExport dataTableExport)
-        {
-            return null;
-        }
-
         public static bool ContainsRowName(DataTableExport dataTableExport, string name)
         {
             return dataTableExport.Table.Data.Any(row => row.Name.ToString().Equals(name));
@@ -118,25 +113,6 @@ namespace Ace_Combat_Merger.Utils
                 fs.Close();
             }
             return BitConverter.ToUInt32(buffer, 0);
-        }
-
-        public static void GetPackageFromPaks(string packageName, string exportPath, List<IReadOnlyDictionary<string, GameFile>> paksFiles)
-        {
-            foreach (var pakFiles in paksFiles)
-            {
-                if (pakFiles.ContainsKey(packageName + ".uasset"))
-                {
-                    File.WriteAllBytes(exportPath + ".uasset", pakFiles[packageName + ".uasset"].Read());
-                }
-                if (pakFiles.ContainsKey(packageName + ".uexp"))
-                {
-                    File.WriteAllBytes(exportPath + ".uexp", pakFiles[packageName + ".uexp"].Read());
-                }
-                if (pakFiles.ContainsKey(packageName + ".dat"))
-                {
-                    File.WriteAllBytes(exportPath + ".dat", pakFiles[packageName + ".dat"].Read());
-                }
-            }
         }
     }
 }
