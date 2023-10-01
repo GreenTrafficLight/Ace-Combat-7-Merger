@@ -19,22 +19,26 @@ namespace Ace_Combat_Merger
         /// <param name="modCMN">The modded CMN where we get the variable</param>
         /// <param name="exportDats">The finished DATs at the end of the program where the string will be added</param>
         /// <param name="moddedDats">The modded DATs that contains the added strings</param>
-        /// <param name="parent"></param>
+        /// <param name="parent">The parent of the modded CMN</param>
         public void MergeCMN(CMN gameCMN, CMN exportCMN, CMN modCMN, DAT[] exportDats, DAT[] moddedDats, KeyValuePair<string, CMNString> parent)
         {
             foreach (KeyValuePair<string, CMNString> child in parent.Value.childrens)
             {
                 // Check if the variable is a new one by comparing with the unmodified game CMN strings count
-                if (gameCMN.StringsCount <= child.Value.StringNumber)
+                if (gameCMN.MaxStringNumber < child.Value.StringNumber)
                 {
-                    string variable = modCMN.GetVariable(child);
-                    exportCMN.AddVariable(variable);
-                    // Loop every mod dat to add the string
-                    foreach (DAT moddedDat in moddedDats)
+                    string variable = GetVariable(child);
+                    // Check if we added a new variable
+                    if (exportCMN.AddVariable(variable))
                     {
-                        DAT exportDat = exportDats[moddedDat.Letter - 65];
-                        string newString = moddedDat.Strings[child.Value.StringNumber];
-                        exportDat.Strings.Add(newString);
+                        // If yes, add the new string
+                        // Loop every mod dat to add the string
+                        foreach (DAT moddedDat in moddedDats)
+                        {
+                            DAT exportDat = exportDats[moddedDat.Letter - 65];
+                            string newString = moddedDat.Strings[child.Value.StringNumber];
+                            exportDat.Strings.Add(newString);
+                        }
                     }
                 }
                 MergeCMN(gameCMN, exportCMN, modCMN, exportDats, moddedDats, child);
