@@ -4,9 +4,7 @@ using CUE4Parse.UE4.Versions;
 using CUE4Parse.FileProvider;
 
 using System.IO;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
 using System.Data;
 using System.Text.RegularExpressions;
 
@@ -31,41 +29,51 @@ namespace Ace_Combat_Merger
         public string GameFilePath
         {
             get { return _gameFilePath; }
-            set 
-            { 
-                if (_gameFilePath != value) 
-                { 
+            set
+            {
+                if (_gameFilePath != value)
+                {
                     _gameFilePath = value;
                     gamePaksFolderPathTextBox.Text = value;
-                } 
+                }
             }
         }
 
         public string ModFolderPath
         {
             get { return _modFolderPath; }
-            set 
+            set
             {
-                if (_modFolderPath != value) 
-                { 
+                if (_modFolderPath != value)
+                {
                     _modFolderPath = value;
                     modsFolderPathTextBox.Text = value;
-                } 
+                }
             }
         }
 
         public string ExportFolderPath
         {
             get { return _exportFolderPath + "\\temp"; }
-            set 
+            set
             {
-                if (_exportFolderPath != value) 
+                if (_exportFolderPath != value)
                 {
                     _exportFolderPath = value;
                     exportPathTextBox.Text = value;
                 }
-                
+
             }
+        }
+
+        public Label PakProgressLabel
+        {
+            get { return PakProgresLabel; }
+        }
+
+        public ProgressBar PakProgressBar
+        {
+            get { return pakProgressBar; }
         }
         public GamePathForm()
         {
@@ -108,7 +116,7 @@ namespace Ace_Combat_Merger
             {
                 DialogResult = DialogResult.OK;
 
-                _ModManager = new ModManager(GameFilePath, ModFolderPath, ExportFolderPath);
+                _ModManager = new ModManager(GameFilePath, ModFolderPath, ExportFolderPath, this);
             }
             else
                 DialogResult = DialogResult.Cancel;
