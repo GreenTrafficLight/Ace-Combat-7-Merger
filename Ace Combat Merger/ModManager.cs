@@ -31,14 +31,16 @@ namespace Ace_Combat_Merger
 
         // Table states for each uasset
         public Dictionary<string, StateDataTable> StateDataTables = new Dictionary<string, StateDataTable>();
-        public Dictionary<string, DictionaryDataTable> DictionaryDataTables = new Dictionary<string, DictionaryDataTable>();
+        public Dictionary<string, DictionaryAC7DataTable> DictionaryDataTables = new Dictionary<string, DictionaryAC7DataTable>();
         public Dictionary<string, List<StateDataTable.State>> StateDATs = new Dictionary<string, List<StateDataTable.State>>();
 
         private readonly string _GameFilePath = "";
         private readonly string _ModFolderPath = "";
         public readonly string ExportFolderPath = "";
 
-        public ModManager(string gameFilePath, string modFolderPath, string exportFolderPath)
+        private int stringToAdd = 0;
+
+        public ModManager(string gameFilePath, string modFolderPath, string exportFolderPath, GamePathForm gamePathForm)
         {
             _GameFilePath = gameFilePath;
             _ModFolderPath = modFolderPath;
@@ -56,11 +58,22 @@ namespace Ace_Combat_Merger
 
             Directory.CreateDirectory(ExportFolderPath);
 
+            gamePathForm.PakProgressLabel.Text = $"Paks : 0 / {PaksModsGameFiles.Count}";
+            //gamePathForm.PakProgressLabel.Visible = true;
+            gamePathForm.Update();
+
+            int index = 1;
             foreach (KeyValuePair<string, Dictionary<string, GameFile>> modGameFiles in PaksModsGameFiles)
             {
                 CreateDirectories(modGameFiles);
 
                 WriteModifications(modGameFiles);
+
+                gamePathForm.PakProgressBar.Text = $"Paks : {index} / {PaksModsGameFiles.Count}";
+                gamePathForm.PakProgressBar.Value = index * 100 / PaksModsGameFiles.Count;
+                gamePathForm.Update();
+
+                index++;
             }
 
             Directory.Delete(ExportFolderPath + "\\original", true);
@@ -182,7 +195,10 @@ namespace Ace_Combat_Merger
                 // Add null string to the other dats that isn't in the mod
                 foreach (DAT exportDat in exportDats) {
                     if (!moddedDatsLetter.Contains(exportDat.Letter)) {
-                        exportDat.Strings.AddRange(Enumerable.Repeat("\0", modCMN.StringsCount - gameCMN.StringsCount));
+                        while (exportDat.Strings.Count < exportCMN.MaxStringNumber){
+                            exportDat.Strings.Add("\0");
+                        }
+                        
                     }
                 }
 
@@ -239,14 +255,18 @@ namespace Ace_Combat_Merger
 
                                 // Write modifications to datatable
                                 StateDataTable stateDataTable = new StateDataTable();
-                                DictionaryDataTable dictionaryDataTable = new DictionaryDataTable();
+                                DictionaryAC7DataTable dictionaryDataTable = new DictionaryAC7DataTable();
+                                
+                                // Check if there are a StateDataTable and DictionaryDataTable for that UAsset
                                 if (StateDataTables.ContainsKey(Path.GetFileNameWithoutExtension(assetFileName)) && DictionaryDataTables.ContainsKey(Path.GetFileNameWithoutExtension(assetFileName)))
                                 {
+                                    // If yes, get them
                                     stateDataTable = StateDataTables[Path.GetFileNameWithoutExtension(assetFileName)];
                                     dictionaryDataTable = DictionaryDataTables[Path.GetFileNameWithoutExtension(assetFileName)];
                                 }
                                 else
                                 {
+                                    // If not, create them
                                     dataTableMerger.BuildStateTable(gameUasset, stateDataTable, dictionaryDataTable);
                                     StateDataTables[Path.GetFileNameWithoutExtension(assetFileName)] = stateDataTable;
                                     DictionaryDataTables[Path.GetFileNameWithoutExtension(assetFileName)] = dictionaryDataTable;
