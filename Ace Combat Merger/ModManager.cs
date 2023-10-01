@@ -38,9 +38,7 @@ namespace Ace_Combat_Merger
         private readonly string _ModFolderPath = "";
         public readonly string ExportFolderPath = "";
 
-        private int stringToAdd = 0;
-
-        public ModManager(string gameFilePath, string modFolderPath, string exportFolderPath, GamePathForm gamePathForm)
+        public ModManager(string gameFilePath, string modFolderPath, string exportFolderPath)
         {
             _GameFilePath = gameFilePath;
             _ModFolderPath = modFolderPath;
@@ -56,27 +54,10 @@ namespace Ace_Combat_Merger
             ModsProvider.SubmitKey(new(0U), new FAesKey("0000000000000000000000000000000000000000000000000000000000000000"));
             GetGameFiles(ModsProvider, PaksModsGameFiles);
 
-            Directory.CreateDirectory(ExportFolderPath);
-
-            gamePathForm.PakProgressLabel.Text = $"Paks : 0 / {PaksModsGameFiles.Count}";
-            //gamePathForm.PakProgressLabel.Visible = true;
-            gamePathForm.Update();
-
-            int index = 1;
-            foreach (KeyValuePair<string, Dictionary<string, GameFile>> modGameFiles in PaksModsGameFiles)
-            {
-                CreateDirectories(modGameFiles);
-
-                WriteModifications(modGameFiles);
-
-                gamePathForm.PakProgressBar.Text = $"Paks : {index} / {PaksModsGameFiles.Count}";
-                gamePathForm.PakProgressBar.Value = index * 100 / PaksModsGameFiles.Count;
-                gamePathForm.Update();
-
-                index++;
+            if (Directory.Exists(ExportFolderPath)) {
+                Directory.Delete(ExportFolderPath, true);
             }
-
-            Directory.Delete(ExportFolderPath + "\\original", true);
+            Directory.CreateDirectory(ExportFolderPath);
         }
 
 
@@ -222,7 +203,8 @@ namespace Ace_Combat_Merger
                 string assetFileName = Path.GetFileName(pakModsFile.Key);
                 string assetFileNameDirectory = Path.GetDirectoryName(pakModsFile.Key);
 
-                if (!paths.Contains(assetFileNameDirectory)) {
+                if (!paths.Contains(assetFileNameDirectory))
+                {
                     continue;
                 }
 
@@ -256,7 +238,7 @@ namespace Ace_Combat_Merger
                                 // Write modifications to datatable
                                 StateDataTable stateDataTable = new StateDataTable();
                                 DictionaryAC7DataTable dictionaryDataTable = new DictionaryAC7DataTable();
-                                
+
                                 // Check if there are a StateDataTable and DictionaryDataTable for that UAsset
                                 if (StateDataTables.ContainsKey(Path.GetFileNameWithoutExtension(assetFileName)) && DictionaryDataTables.ContainsKey(Path.GetFileNameWithoutExtension(assetFileName)))
                                 {
@@ -290,6 +272,40 @@ namespace Ace_Combat_Merger
                         break;
                 }
             }
+        }
+
+        public async Task Merge(GamePathForm gamePathForm)
+        {
+            await Task.Run(() =>
+            {
+                gamePathForm.Invoke(() =>
+                {
+                    gamePathForm.PakProgressLabel.Text = $"Paks : 0 / {PaksModsGameFiles.Count}";
+                    gamePathForm.PakProgressLabel.Visible = true;
+                    gamePathForm.OkButton.Enabled = false;
+                });
+
+                int index = 1;
+                foreach (KeyValuePair<string, Dictionary<string, GameFile>> modGameFiles in PaksModsGameFiles)
+                {
+                    CreateDirectories(modGameFiles);
+
+                    WriteModifications(modGameFiles);
+
+                    gamePathForm.Invoke(() =>
+                    {
+                        gamePathForm.PakProgressLabel.Text = $"Paks : {index} / {PaksModsGameFiles.Count}";
+                        gamePathForm.PakProgressBar.Value = index * 100 / PaksModsGameFiles.Count;
+                    });
+
+                    index++;
+                }
+
+                gamePathForm.Invoke(() =>
+                {
+                    gamePathForm.OkButton.Enabled = true;
+                });
+            });
         }
     }
 }

@@ -68,12 +68,17 @@ namespace Ace_Combat_Merger
 
         public Label PakProgressLabel
         {
-            get { return PakProgresLabel; }
+            get { return pakProgresLabel; }
         }
 
         public ProgressBar PakProgressBar
         {
             get { return pakProgressBar; }
+        }
+
+        public Button OkButton
+        {
+            get { return okButton; }
         }
         public GamePathForm()
         {
@@ -96,8 +101,7 @@ namespace Ace_Combat_Merger
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
                     GameFilePath = fbd.SelectedPath;
-                    if (Directory.Exists(GameFilePath + "\\~mods"))
-                    {
+                    if (Directory.Exists(GameFilePath + "\\~mods")){
                         ModFolderPath = GameFilePath + "\\~mods";
                     }
                 }
@@ -110,13 +114,14 @@ namespace Ace_Combat_Merger
             Close();
         }
 
-        private void okButton_Click(object sender, EventArgs e)
+        private async void okButton_Click(object sender, EventArgs e)
         {
             if (Directory.Exists(ModFolderPath))
             {
                 DialogResult = DialogResult.OK;
 
-                _ModManager = new ModManager(GameFilePath, ModFolderPath, ExportFolderPath, this);
+                _ModManager = new ModManager(GameFilePath, ModFolderPath, ExportFolderPath);
+                await _ModManager.Merge(this);
             }
             else
                 DialogResult = DialogResult.Cancel;

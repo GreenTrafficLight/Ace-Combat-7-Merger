@@ -41,7 +41,7 @@ namespace Ace_Combat_Merger
             exportPathLabel = new Label();
             exportPathLabelButton = new Button();
             pakProgressBar = new ProgressBar();
-            PakProgresLabel = new Label();
+            pakProgresLabel = new Label();
             SuspendLayout();
             // 
             // gamePaksFolderPathButton
@@ -167,22 +167,22 @@ namespace Ace_Combat_Merger
             pakProgressBar.Size = new Size(468, 27);
             pakProgressBar.TabIndex = 11;
             // 
-            // PakProgresLabel
+            // pakProgresLabel
             // 
-            PakProgresLabel.AutoSize = true;
-            PakProgresLabel.Location = new Point(10, 138);
-            PakProgresLabel.Name = "PakProgresLabel";
-            PakProgresLabel.Size = new Size(38, 15);
-            PakProgresLabel.TabIndex = 12;
-            PakProgresLabel.Text = "label1";
-            PakProgresLabel.Visible = false;
+            pakProgresLabel.AutoSize = true;
+            pakProgresLabel.Location = new Point(10, 138);
+            pakProgresLabel.Name = "pakProgresLabel";
+            pakProgresLabel.Size = new Size(38, 15);
+            pakProgresLabel.TabIndex = 12;
+            pakProgresLabel.Text = "label1";
+            pakProgresLabel.Visible = false;
             // 
             // GamePathForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(681, 218);
-            Controls.Add(PakProgresLabel);
+            Controls.Add(pakProgresLabel);
             Controls.Add(pakProgressBar);
             Controls.Add(exportPathLabelButton);
             Controls.Add(exportPathLabel);
@@ -216,6 +216,6 @@ namespace Ace_Combat_Merger
         private Label exportPathLabel;
         private Button exportPathLabelButton;
         private ProgressBar pakProgressBar;
-        private Label PakProgresLabel;
+        private Label pakProgresLabel;
     }
 }
